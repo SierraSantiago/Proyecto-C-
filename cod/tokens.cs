@@ -1,10 +1,10 @@
 public enum TokenType
 {
-    Integer,
-    Plus,
-    Minus,
-    Multiply,
-    Divide,
+    INTEGER,
+    PLUS,
+    MINUS,
+    MULTIPLY,
+    DIVIDE,
     EOF,
     ASSIGN,
     COMMA,

@@ -16,7 +16,11 @@ public class Lexer
         if (_position < _input.Length)
             return _input[_position];
         else
-            return '\0'; // End of input
+            return '\0'; 
+    }
+    private bool IsLetter(char c)
+    {
+        return char.IsLetter(c);
     }
 
     private void Advance()
@@ -53,27 +57,28 @@ public class Lexer
                 continue;
             }
 
+
             if (char.IsDigit(CurrentChar()))
             {
-                return new Token(TokenType.Integer, CollectInteger());
+                return new Token(TokenType.INTEGER, CollectInteger());
             }
 
             if (CurrentChar() == '+')
             {
                 Advance();
-                return new Token(TokenType.Plus, "+");
+                return new Token(TokenType.PLUS, "+");
             }
 
             if (CurrentChar() == '-')
             {
                 Advance();
-                return new Token(TokenType.Minus, "-");
+                return new Token(TokenType.MINUS, "-");
             }
 
             if (CurrentChar() == '*')
             {
                 Advance();
-                return new Token(TokenType.Multiply, "*");
+                return new Token(TokenType.MULTIPLY, "*");
             }
 
             if (CurrentChar() == '=')
@@ -126,16 +131,18 @@ public class Lexer
             if (CurrentChar() == '!')
             {
                 Advance();
-                return new Token(TokenType.Multiply, "*");
+                return new Token(TokenType.MULTIPLY, "*");
             }
-
+            if (CurrentChar() == '/')
             {
                 Advance();
-                return new Token(TokenType.Divide, "/");
+                return new Token(TokenType.DIVIDE, "/");
             }
+            
 
             throw new Exception($"Error: Caracter inesperado '{CurrentChar()}'");
         }
+        
 
         return new Token(TokenType.EOF, "\0");
     }
