@@ -92,6 +92,11 @@ public class Lexer
             {
                 return new Token(TokenType.INTEGER, CollectInteger());
             }
+            if (CurrentChar() == ' ')
+            {
+                Advance();
+                return new Token(TokenType.SPACE, " ");
+            }
 
             if (CurrentChar() == '+')
             {
@@ -109,12 +114,6 @@ public class Lexer
             {
                 Advance();
                 return new Token(TokenType.MULTIPLY, "*");
-            }
-
-            if (CurrentChar() == '=')
-            {
-                Advance();
-                return new Token(TokenType.EQ, "=");
             }
 
             if (CurrentChar() == '(')

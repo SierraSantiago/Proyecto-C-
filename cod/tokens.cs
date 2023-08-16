@@ -37,7 +37,11 @@ public enum TokenType
     SEMICOLON,
     TRUE,
     LTE,
-    GTE    
+    GTE,
+    SPACE,
+    WHILE,
+    DO,
+    BREAK,  
 }
 
 public class Token
@@ -58,7 +62,10 @@ public class Token
         { "si", TokenType.IF },
         { "tonces", TokenType.ELSE },
         { "incognita", TokenType.LET },
-        { "verdad", TokenType.TRUE }
+        { "verdad", TokenType.TRUE },
+        { "mientras", TokenType.WHILE },
+        { "haz", TokenType.DO },
+        { "termina", TokenType.BREAK },
     };
 
     public TokenType LookupTokenType(string literal)
