@@ -1,5 +1,10 @@
+namespace cod
+{
 public enum TokenType
 {
+    AND,
+    END,
+    LITERAL,
     INTEGER,
     PLUS,
     MINUS,
@@ -22,11 +27,10 @@ public enum TokenType
     LET,
     LPAREN,
     LT,
-    MINUS,
+    OR,
     MULTIPLICATION,
     NEGATION,
     NOT_EQ,
-    PLUS,
     RETURN,
     RBRACE,
     RPAREN,
@@ -46,10 +50,34 @@ public class Token
         Type = type;
         Value = value;
     }
+    private Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
+    {
+        { "mentira", TokenType.FALSE },
+        { "operacion", TokenType.FUNCTION },
+        { "atras", TokenType.RETURN },
+        { "si", TokenType.IF },
+        { "tonces", TokenType.ELSE },
+        { "incognita", TokenType.LET },
+        { "verdad", TokenType.TRUE }
+    };
+
+    public TokenType LookupTokenType(string literal)
+    {
+        if (keywords.TryGetValue(literal, out TokenType tokenType))
+        {
+            return tokenType;
+        }
+        else
+        {
+            return TokenType.IDENT;
+        }
+    }
+
 
     public override string ToString()
     {
         return $"Token({Type}, {Value})";
     }
     
+}
 }

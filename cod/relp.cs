@@ -1,13 +1,15 @@
 using System;
 
+
 namespace cod
 {
-    class Program
+    class Relp
     {
-        static void Main(string[] args)
+        
+        public void relp_start()
         {
-            Console.WriteLine("¡Bienvenido al SimpleREPL!");
-            Console.WriteLine("Ingresa comandos o 'exit' para salir.");
+            Console.WriteLine("¡Bienvenido!");
+            Console.WriteLine("Ingresa 'exit' para salir.");
 
             while (true)
             {
@@ -15,30 +17,29 @@ namespace cod
                 string input = Console.ReadLine();
 
                 Lexer lexer = new Lexer(input);
+                
+                Token token = lexer.GetNextToken();
 
-                Token token;
-
-                do
+               if (token.LookupTokenType(input) != TokenType.IDENT)
                 {
-                    token = lexer.GetNextToken();
-                    Console.WriteLine(token);
-                } while (token.Type != TokenType.EOF);
-
-                if (input == "exit")
-                {
-                    Console.WriteLine("¡Hasta luego!");
-                    break;
-                }
-
-            }
-        }
-
-        static object Evaluate(string input)
+                 Console.WriteLine("Token(" + token.LookupTokenType(input) + "," + input + ")");
+                 }
+                else if (input == "exit")
+             {
+        Console.WriteLine("¡Hasta luego!");
+        break;
+    }
+    else
+    {
+        do
         {
-            // Aquí puedes implementar la lógica de evaluación de comandos.
-            // Puedes usar un motor de scripting, evaluar expresiones matemáticas, etc.
-            // Por simplicidad, este ejemplo simplemente devuelve el input como cadena.
-            return input;
+            Console.WriteLine(token);
+            token = lexer.GetNextToken();
+        } while (token.Type != TokenType.END);
+    }
         }
     }
+
+    
+}
 }

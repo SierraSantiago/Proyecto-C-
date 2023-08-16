@@ -1,5 +1,8 @@
 using System;
+using Microsoft.VisualBasic;
 
+namespace cod
+{
 public class Lexer
 {
     private readonly string _input;
@@ -18,10 +21,19 @@ public class Lexer
         else
             return '\0'; 
     }
+    private char NextChar()
+    {
+        Advance();
+        if (_position < _input.Length)
+            return _input[_position];
+        else
+            return '\0'; 
+    }
     private bool IsLetter(char c)
     {
         return char.IsLetter(c);
     }
+  
 
     private void Advance()
     {
@@ -46,6 +58,19 @@ public class Lexer
         }
         return result;
     }
+    private string CollectLetter()
+{
+    string result = "";
+    
+    while (IsLetter(CurrentChar()) || CurrentChar() == '_')
+    {
+        result += CurrentChar();
+        Advance();
+    }
+    
+    return result;
+}
+    
 
     public Token GetNextToken()
     {
@@ -55,6 +80,11 @@ public class Lexer
             {
                 SkipWhitespace();
                 continue;
+            }
+            if (char.IsLetter(CurrentChar()))
+            {
+            
+            return new Token(TokenType.LITERAL, CollectLetter());
             }
 
 
@@ -107,6 +137,26 @@ public class Lexer
                 Advance();
                 return new Token(TokenType.RBRACE, "}");
             }
+            if (CurrentChar() == '|' &&  NextChar()=='|')
+            {
+                Advance();
+                return new Token(TokenType.OR, "||");
+            }
+            if (CurrentChar() == '&' &&  NextChar()=='&')
+            {
+                Advance();
+                return new Token(TokenType.AND, "&&");
+            }
+            if (CurrentChar() == '!' &&  NextChar()=='=')
+            {   
+                Advance();
+                return new Token(TokenType.NOT_EQ, "!=");
+            }
+            if (CurrentChar() == '=' &&  NextChar()=='=')
+            {
+                Advance();
+                return new Token(TokenType.EQ, "==");
+            }
             if (CurrentChar() == ',')
             {
                 Advance();
@@ -140,10 +190,14 @@ public class Lexer
             }
             
 
-            throw new Exception($"Error: Caracter inesperado '{CurrentChar()}'");
+            else{
+                Advance();
+                return new Token(TokenType.ILLEGAL, _input);
+            }
         }
         
 
-        return new Token(TokenType.EOF, "\0");
+        return new Token(TokenType.END, "Fin");
     }
+}
 }
