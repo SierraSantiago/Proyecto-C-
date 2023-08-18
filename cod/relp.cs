@@ -1,11 +1,9 @@
 using System;
 
-
 namespace cod
 {
     class Relp
     {
-        
         public void relp_start()
         {
             Console.WriteLine("¡Bienvenido!");
@@ -16,30 +14,32 @@ namespace cod
                 Console.Write("> ");
                 string input = Console.ReadLine();
 
+                if (input == "exit")
+                {
+                    Console.WriteLine("¡Hasta luego!");
+                    break;  // Sale del bucle si se ingresa "exit"
+                }
+
                 Lexer lexer = new Lexer(input);
-                
+
                 Token token = lexer.GetNextToken();
 
-               if (token.LookupTokenType(input) != TokenType.IDENT)
+                foreach (string str in token.SplitString(input))
                 {
-                 Console.WriteLine("Token(" + token.LookupTokenType(input) + "," + input + ")");
-                 }
-                else if (input == "exit")
-             {
-        Console.WriteLine("¡Hasta luego!");
-        break;
-    }
-    else
-    {
-        do
-        {
-            Console.WriteLine(token);
-            token = lexer.GetNextToken();
-        } while (token.Type != TokenType.END);
-    }
+                    if (token.LookupTokenType(str) != TokenType.IDENT)
+                    {
+                        Console.WriteLine("Token(" + token.LookupTokenType(str) + "," + str + ")");
+                    }
+                    else
+                    {
+                        do
+                        {
+                            Console.WriteLine(token);
+                            token = lexer.GetNextToken();
+                        } while (token.Type != TokenType.END);
+                    }
+                }
+            }
         }
     }
-
-    
-}
 }

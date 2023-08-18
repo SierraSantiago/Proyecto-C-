@@ -1,60 +1,60 @@
 namespace cod
 {
-public enum TokenType
-{
-    AND,
-    END,
-    LITERAL,
-    INTEGER,
-    PLUS,
-    MINUS,
-    MULTIPLY,
-    DIVIDE,
-    EOF,
-    ASSIGN,
-    COMMA,
-    DIVISION,
-    ELSE,
-    EQ,
-    FALSE,
-    FUNCTION,
-    GT,
-    IDENT,
-    IF,
-    ILLEGAL,
-    INT,
-    LBRACE,
-    LET,
-    LPAREN,
-    LT,
-    OR,
-    MULTIPLICATION,
-    NEGATION,
-    NOT_EQ,
-    RETURN,
-    RBRACE,
-    RPAREN,
-    SEMICOLON,
-    TRUE,
-    LTE,
-    GTE,
-    SPACE,
-    WHILE,
-    DO,
-    BREAK,  
-}
-
-public class Token
-{
-    public TokenType Type { get; }
-    public string Value { get; }
-
-    public Token(TokenType type, string value)
+    public enum TokenType
     {
-        Type = type;
-        Value = value;
+        AND,
+        END,
+        LITERAL,
+        INTEGER,
+        PLUS,
+        MINUS,
+        MULTIPLY,
+        DIVIDE,
+        EOF,
+        ASSIGN,
+        COMMA,
+        DIVISION,
+        ELSE,
+        EQ,
+        FALSE,
+        FUNCTION,
+        GT,
+        IDENT,
+        IF,
+        ILLEGAL,
+        INT,
+        LBRACE,
+        LET,
+        LPAREN,
+        LT,
+        OR,
+        MULTIPLICATION,
+        NEGATION,
+        NOT_EQ,
+        RETURN,
+        RBRACE,
+        RPAREN,
+        SEMICOLON,
+        TRUE,
+        LTE,
+        GTE,
+        SPACE,
+        WHILE,
+        DO,
+        BREAK,
     }
-    private Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
+
+    public class Token
+    {
+        public TokenType Type { get; }
+        public string Value { get; }
+
+        public Token(TokenType type, string value)
+        {
+            Type = type;
+            Value = value;
+        }
+        public Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
     {
         { "mentira", TokenType.FALSE },
         { "operacion", TokenType.FUNCTION },
@@ -67,24 +67,38 @@ public class Token
         { "haz", TokenType.DO },
         { "termina", TokenType.BREAK },
     };
-
-    public TokenType LookupTokenType(string literal)
+    
+    public bool ContainsKeyword(string keyword)
     {
-        if (keywords.TryGetValue(literal, out TokenType tokenType))
-        {
-            return tokenType;
-        }
-        else
-        {
-            return TokenType.IDENT;
-        }
-    }
-
-
-    public override string ToString()
-    {
-        return $"Token({Type}, {Value})";
+        return keywords.ContainsKey(keyword);
     }
     
-}
+    
+
+        public TokenType LookupTokenType(string literal)
+        {
+            if (keywords.TryGetValue(literal, out TokenType tokenType))
+            {
+                return tokenType;
+            }
+            else
+            {
+                return TokenType.IDENT;
+            }
+        }
+
+        public string[] SplitString(string input)
+        {
+            // Dividir el string usando espacios como delimitador
+            string[] words = input.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            return words;
+        }
+
+
+        public override string ToString()
+        {
+            return $"Token({Type}, {Value})";
+        }
+
+    }
 }
