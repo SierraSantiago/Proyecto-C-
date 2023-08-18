@@ -72,7 +72,7 @@ namespace cod
             return result;
         }
 
-        Token token;
+        //Token token;
         public Token GetNextToken()
         {
             
@@ -84,7 +84,7 @@ namespace cod
                     continue;
                 }
                 
-                if (char.IsLetter(CurrentChar()))
+                if (char.IsLetter(CurrentChar()) )//&& !token.ContainsKeyword())
                 {
 
                     return new Token(TokenType.LITERAL, CollectLetter());
