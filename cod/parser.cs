@@ -42,7 +42,7 @@ namespace Parser
 
             prefixParseFns = new Dictionary<TokenType, Func<Expression>>
             {
-                {TokenType.FALSE, ParserBoolean},
+                {TokenType.FALSE, ParseBoolean},
                 {TokenType.FUNCTION, ParseFunction},
                 {TokenType.IDENT, ParseIdentifier},
                 {TokenType.IF, ParseIf},
@@ -138,7 +138,7 @@ namespace Parser
                 while (currentToken.Type != TokenType.RBRACE
                         && currentToken.Type != TokenType.EOF)
                 {
-                    Statement statement = parseStatement();
+                    Statement statement = ParseStatement();
 
                     if (statement != null)
                     {
@@ -395,6 +395,152 @@ namespace Parser
                 return ifExpression;
             }
             return null;
+        }
+        private Infix ParseInfixExpression(Expression left)
+        {
+            if (currentToken != null)
+            {
+                Token token = currentToken;
+                string op = token.Value;
+                Precedence precedence = CurrentPrecedence();
+
+                NextToken();
+
+                Expression right = ParseExpression(precedence);
+
+                return new Infix(token, left, op, right);
+            }
+            return null;
+        }
+
+        private Integer ParseInteger()
+        {
+            if (currentToken != null)
+            {
+                Token token = currentToken;
+                Integer integer = new Integer(token);
+
+                try
+                {
+                    integer.Value = int.Parse(token.Value);
+                }
+                catch (FormatException)
+                {
+                    string message = $"No se pudo analizar '{token.Value}' como un entero.";
+                    errors.Add(message);
+                    return null;
+                }
+
+                NextToken();
+                return integer;
+            }
+            return null;
+        }
+        private LetStatement ParseLetStatement()
+        {
+            if (currentToken != null)
+            {
+                Token token = currentToken;
+                LetStatement letStatement = new LetStatement(token);
+
+                if (!Expect(TokenType.IDENT))
+                {
+                    return null;
+                }
+
+                letStatement.Name = ParseIdentifier();
+
+                if (!Expect(TokenType.ASSIGN))
+                {
+                    return null;
+                }
+
+                NextToken();
+
+                letStatement.Value = ParseExpression(Precedence.LOWEST);
+
+                if (currentToken != null && currentToken.Type == TokenType.SEMICOLON)
+                {
+                    NextToken();
+                }
+
+                return letStatement;
+            }
+            return null;
+        }
+        private ParsePrefixExpression ParsePrefixExpression()
+        {
+            if (currentToken != null)
+            {
+                Token token = currentToken;
+                ParsePrefixExpression prefixExpression = new ParsePrefixExpression(token, currentToken.Value);
+
+                NextToken();
+
+                prefixExpression.Right = ParseExpression(Precedence.PREFIX);
+
+                return prefixExpression;
+            }
+            return null;
+        }
+        private ReturnStatement ParseReturnStatement()
+        {
+            if (currentToken != null)
+            {
+                Token token = currentToken;
+                ReturnStatement returnStatement = new ReturnStatement(token);
+
+                NextToken();
+
+                returnStatement.ReturnValue = ParseExpression(Precedence.LOWEST);
+
+                if (Match(TokenType.SEMICOLON))
+                {
+                    NextToken();
+                }
+
+                return returnStatement;
+            }
+            return null;
+        }
+        private Statement ParseStatement()
+        {
+            if (currentToken != null)
+            {
+                if (currentToken.Type == TokenType.LET)
+                {
+                    return ParseLetStatement();
+                }
+                else if (currentToken.Type == TokenType.RETURN)
+                {
+                    return ParseReturnStatement();
+                }
+                else
+                {
+                    return ParseExpressionStatement();
+                }
+            }
+            return null;
+        }
+        private Expression ParseStringLiteral()
+        {
+            if (currentToken != null)
+            {
+                return new StringLiteral(currentToken, currentToken.Value);
+            }
+            return null;
+        }
+
+        private Precedence PeekPrecedence()
+        {
+            if (peekToken != null)
+            {
+                if (precedences.ContainsKey(peekToken.Type))
+                {
+                    return precedences[peekToken.Type];
+                }
+            }
+            return Precedence.LOWEST;
         }
 
 

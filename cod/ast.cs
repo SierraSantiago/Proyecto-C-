@@ -96,8 +96,8 @@ namespace cod
 
     public class LetStatement : Statement
     {
-        public Identifier Name { get; }
-        public Expression Value { get; }
+        public Identifier Name { get; set;}
+        public Expression Value { get;set; }
 
         public LetStatement(Token token, Identifier name = null, Expression value = null)
             : base(token)
@@ -113,7 +113,7 @@ namespace cod
     }
     public class ReturnStatement : Statement
     {
-        public Expression ReturnValue { get; }
+        public Expression ReturnValue { get; set;}
 
         public ReturnStatement(Token token, Expression returnValue = null)
             : base(token)
@@ -143,7 +143,7 @@ namespace cod
     }
     public class Integer : Expression
     {
-        public int? Value { get; }
+        public int? Value { get;set; }
 
         public Integer(Token token, int? value = null)
             : base(token)
@@ -159,7 +159,7 @@ namespace cod
     public class ParsePrefixExpression : Expression
     {
         public string Operator { get; }
-        public Expression Right { get; }
+        public Expression Right { get;set; }
 
         public ParsePrefixExpression(Token token, string @operator, Expression right = null)
             : base(token)
