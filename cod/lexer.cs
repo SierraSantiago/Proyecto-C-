@@ -22,6 +22,10 @@ namespace cod
             else
                 return '\0';
         }
+
+        private char doubleR(){
+            return _input[_position];
+        }
         private char NextChar()
         {
             Advance();

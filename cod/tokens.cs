@@ -58,7 +58,7 @@ namespace cod
     {
         { "mentira", TokenType.FALSE },
         { "operacion", TokenType.FUNCTION },
-        { "atras", TokenType.RETURN },
+        { "devulve", TokenType.RETURN },
         { "si", TokenType.IF },
         { "tonces", TokenType.ELSE },
         { "incognita", TokenType.LET },
