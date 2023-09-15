@@ -3,7 +3,7 @@ using Microsoft.VisualBasic;
 
 namespace cod
 {
-    
+
     public class Lexer
     {
         private readonly string _input;
@@ -14,7 +14,7 @@ namespace cod
             _input = input;
             _position = 0;
         }
-
+        
         private char CurrentChar()
         {
             if (_position < _input.Length)
@@ -23,7 +23,8 @@ namespace cod
                 return '\0';
         }
 
-        private char doubleR(){
+        private char doubleR()
+        {
             return _input[_position];
         }
         private char NextChar()
@@ -79,7 +80,7 @@ namespace cod
         //Token token;
         public Token GetNextToken()
         {
-            
+
             while (CurrentChar() != '\0')
             {
                 if (char.IsWhiteSpace(CurrentChar()))
@@ -87,15 +88,15 @@ namespace cod
                     SkipWhitespace();
                     continue;
                 }
-                
-                if (char.IsLetter(CurrentChar()) )//&& !token.ContainsKeyword())
+
+                if (char.IsLetter(CurrentChar()))//&& !token.ContainsKeyword())
                 {
 
                     return new Token(TokenType.LITERAL, CollectLetter());
                 }
 
 
-                if (char.IsDigit(CurrentChar()) )
+                if (char.IsDigit(CurrentChar()))
                 {
                     return new Token(TokenType.INTEGER, CollectInteger());
                 }
@@ -107,6 +108,7 @@ namespace cod
 
                 if (CurrentChar() == '+')
                 {
+                    
                     Advance();
                     return new Token(TokenType.PLUS, "+");
                 }

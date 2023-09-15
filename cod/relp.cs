@@ -21,6 +21,16 @@ namespace cod
                 }
 
                 Lexer lexer = new Lexer(input);
+               /* Parser parser = new Parser(lexer);
+                Program programa = parser.ParseProgram();
+                
+                if (parser.Errors.Count > 0)
+                {
+                    PrintParseErrors(parser.Errors);
+                    continue;
+                }
+                */
+
 
                 Token token = lexer.GetNextToken();
 
@@ -39,6 +49,14 @@ namespace cod
                         } while (token.Type != TokenType.END);
                     }
                 }
+            }
+        }
+        private void PrintParseErrors(List<string> errors)
+        {
+            Console.WriteLine("Se encontraron errores de análisis sintáctico:");
+            foreach (var error in errors)
+            {
+                Console.WriteLine(error);
             }
         }
     }

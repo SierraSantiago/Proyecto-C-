@@ -193,11 +193,11 @@ namespace cod
         }
     }
 
-    public class Boolean : Expression
+    public class Boolea : Expression
     {
         public bool? Value { get; }
 
-        public Boolean(Token token, bool? value = null)
+        public Boolea(Token token, bool? value = null)
             : base(token)
         {
             Value = value;

@@ -1,7 +1,21 @@
-using cod;
+using System;
+using System.Diagnostics.CodeAnalysis;
 
-namespace Parser
+namespace cod
 {
+
+    public enum Precedence
+    {
+        LOWEST = 1,
+        EQUALS = 2,
+        LESSGREATER = 3,
+        SUM = 4,
+        PRODUCT = 5,
+        PREFIX = 6,
+        CALL = 7
+    }
+
+
     public class Parser
     {
         private Lexer lexer;
@@ -11,16 +25,6 @@ namespace Parser
 
         private Dictionary<TokenType, Func<Expression>> prefixParseFns;
         private Dictionary<TokenType, Func<Expression, Expression>> infixParseFns;
-        public enum Precedence
-        {
-            LOWEST = 1,
-            EQUALS = 2,
-            LESSGREATER = 3,
-            SUM = 4,
-            PRODUCT = 5,
-            PREFIX = 6,
-            CALL = 7
-        }
 
         private readonly Dictionary<TokenType, Precedence> precedences = new Dictionary<TokenType, Precedence>
         {
@@ -35,56 +39,43 @@ namespace Parser
             {TokenType.LPAREN, Precedence.CALL}
         };
 
+
         public Parser(Lexer lexer)
         {
             this.lexer = lexer;
+            currentToken = null;
+            peekToken = null;
+            errors = new List<string>();
 
-
-            prefixParseFns = new Dictionary<TokenType, Func<Expression>>
-            {
-                {TokenType.FALSE, ParseBoolean},
-                {TokenType.FUNCTION, ParseFunction},
-                {TokenType.IDENT, ParseIdentifier},
-                {TokenType.IF, ParseIf},
-                {TokenType.INT, ParseInteger},
-                {TokenType.LPAREN, ParseGroupedExpression},
-                {TokenType.MINUS, ParsePrefixExpression},
-                {TokenType.NEGATION, ParsePrefixExpression},
-                {TokenType.TRUE, ParseBoolean},
-                {TokenType.LITERAL, ParseStringLiteral}
-            };
-
-            infixParseFns = new Dictionary<TokenType, Func<Expression, Expression>>
-            {
-                {TokenType.PLUS, ParseInfixExpression},
-                {TokenType.MINUS, ParseInfixExpression},
-                {TokenType.DIVISION, ParseInfixExpression},
-                {TokenType.MULTIPLY, ParseInfixExpression},
-                {TokenType.EQ, ParseInfixExpression},
-                {TokenType.NOT_EQ, ParseInfixExpression},
-                {TokenType.LT, ParseInfixExpression},
-                {TokenType.GT, ParseInfixExpression},
-                {TokenType.LPAREN, ParseCall}
-            };
+            prefixParseFns = RegisterPrefixFns();
+            infixParseFns = RegisterInfixFns();
 
             NextToken();
             NextToken();
+            
         }
+        
 
         public List<string> Errors => errors;
 
         public Program ParseProgram()
         {
-            var program = new Program(new List<Statement>());
 
-            while (currentToken.Type != TokenType.EOF)
+            Program program = new Program(new List<Statement>());
+
+            if (currentToken != null)
             {
-                var statement = ParseStatement();
-                if (statement != null)
+                while (currentToken.Type != TokenType.END)
                 {
-                    program.Statements.Add(statement);
+                    var statement = ParseStatement();
+                    if (statement != null)
+                    {
+                        program.Statements.Add(statement);
+                        
+                    }
+
+                    NextToken();
                 }
-                NextToken();
             }
 
             return program;
@@ -96,16 +87,26 @@ namespace Parser
             peekToken = lexer.GetNextToken();
         }
 
-        private bool Expect(TokenType expectedType)
+        private bool ExpectedToken(TokenType tokenType)
         {
-            if (currentToken.Type == expectedType)
+            if (peekToken != null)
             {
-                NextToken();
-                return true;
+                if (peekToken.Type == tokenType)
+                {
+                    NextToken();
+                    return true;
+                }
+                ExpectedTokenError(tokenType);
             }
-            else
+            return false;
+        }
+        private void ExpectedTokenError(TokenType tokenType)
+        {
+            if (peekToken != null)
             {
-                return false;
+                string error = $"Se esperaba que el siguiente token fuera {tokenType} " +
+                               $"pero se obtuvo {peekToken.Type}";
+                errors.Add(error);
             }
         }
 
@@ -114,10 +115,7 @@ namespace Parser
             return currentToken.Type == expectedType;
         }
 
-        private void ExpectedTokenError(TokenType expectedType)
-        {
-            errors.Add($"Expected token {expectedType}, but got {currentToken.Type}");
-        }
+
 
         private Precedence CurrentPrecedence()
         {
@@ -136,7 +134,7 @@ namespace Parser
                 NextToken();
 
                 while (currentToken.Type != TokenType.RBRACE
-                        && currentToken.Type != TokenType.EOF)
+                        && currentToken.Type != TokenType.END)
                 {
                     Statement statement = ParseStatement();
 
@@ -152,15 +150,14 @@ namespace Parser
             }
             return null; // Devuelve null en caso de que _current_token sea nulo.
         }
-        private bool ParseBoolean()
+        private Boolea ParseBoolean()
         {
             if (currentToken != null)
             {
-                return currentToken.Type == TokenType.TRUE;
+                return new Boolea(currentToken, currentToken.Type == TokenType.TRUE);
             }
-            return false; // Devuelve false en caso de que currentToken sea nulo.
+            return null;
         }
-
         private Call ParseCall(Expression function)
         {
             if (currentToken != null)
@@ -205,7 +202,7 @@ namespace Parser
                 }
             }
 
-            if (!Expect(TokenType.RPAREN))
+            if (!ExpectedToken(TokenType.RPAREN))
             {
                 return null;
             }
@@ -275,7 +272,7 @@ namespace Parser
 
             Expression expression = ParseExpression(Precedence.LOWEST);
 
-            if (!Expect(TokenType.RPAREN))
+            if (!ExpectedToken(TokenType.RPAREN))
             {
                 return null;
             }
@@ -288,14 +285,14 @@ namespace Parser
             {
                 Function function = new Function(currentToken);
 
-                if (!Expect(TokenType.LPAREN))
+                if (!ExpectedToken(TokenType.LPAREN))
                 {
                     return null;
                 }
 
                 function.Parameters = ParseFunctionParameters();
 
-                if (!Expect(TokenType.LBRACE))
+                if (!ExpectedToken(TokenType.LBRACE))
                 {
                     return null;
                 }
@@ -330,6 +327,7 @@ namespace Parser
             {
                 NextToken();
                 NextToken();
+                
 
                 if (currentToken != null)
                 {
@@ -338,7 +336,7 @@ namespace Parser
                 }
             }
 
-            if (!Expect(TokenType.RPAREN))
+            if (!ExpectedToken(TokenType.RPAREN))
             {
                 return new List<Identifier>();
             }
@@ -359,7 +357,7 @@ namespace Parser
             {
                 If ifExpression = new If(currentToken);
 
-                if (!Expect(TokenType.LPAREN))
+                if (!ExpectedToken(TokenType.LPAREN))
                 {
                     return null;
                 }
@@ -368,12 +366,12 @@ namespace Parser
 
                 ifExpression.Condition = ParseExpression(Precedence.LOWEST);
 
-                if (!Expect(TokenType.RPAREN))
+                if (!ExpectedToken(TokenType.RPAREN))
                 {
                     return null;
                 }
 
-                if (!Expect(TokenType.LBRACE))
+                if (!ExpectedToken(TokenType.LBRACE))
                 {
                     return null;
                 }
@@ -384,7 +382,7 @@ namespace Parser
                 {
                     NextToken();
 
-                    if (!Expect(TokenType.LBRACE))
+                    if (!ExpectedToken(TokenType.LBRACE))
                     {
                         return null;
                     }
@@ -407,7 +405,7 @@ namespace Parser
                 NextToken();
 
                 Expression right = ParseExpression(precedence);
-
+                
                 return new Infix(token, left, op, right);
             }
             return null;
@@ -443,14 +441,14 @@ namespace Parser
                 Token token = currentToken;
                 LetStatement letStatement = new LetStatement(token);
 
-                if (!Expect(TokenType.IDENT))
+                if (!ExpectedToken(TokenType.IDENT))
                 {
                     return null;
                 }
 
                 letStatement.Name = ParseIdentifier();
 
-                if (!Expect(TokenType.ASSIGN))
+                if (!ExpectedToken(TokenType.ASSIGN))
                 {
                     return null;
                 }
@@ -478,7 +476,6 @@ namespace Parser
                 NextToken();
 
                 prefixExpression.Right = ParseExpression(Precedence.PREFIX);
-
                 return prefixExpression;
             }
             return null;
@@ -542,15 +539,37 @@ namespace Parser
             }
             return Precedence.LOWEST;
         }
+        private Dictionary<TokenType, Func<Expression, Expression>> RegisterInfixFns()
+        {
+            return new Dictionary<TokenType, Func<Expression, Expression>>
+    {
+        { TokenType.PLUS, ParseInfixExpression },
+        { TokenType.MINUS, ParseInfixExpression },
+        { TokenType.DIVISION, ParseInfixExpression },
+        { TokenType.MULTIPLICATION, ParseInfixExpression },
+        { TokenType.EQ, ParseInfixExpression },
+        { TokenType.NOT_EQ, ParseInfixExpression },
+        { TokenType.LT, ParseInfixExpression },
+        { TokenType.GT, ParseInfixExpression },
+        { TokenType.LPAREN, ParseCall },
+    };
+        }
 
+        private Dictionary<TokenType, Func<Expression>> RegisterPrefixFns()
+        {
+            return new Dictionary<TokenType, Func<Expression>>
+    {
+        { TokenType.FALSE, ParseBoolean },
+        { TokenType.FUNCTION, ParseFunction },
+        { TokenType.IDENT, ParseIdentifier },
+        { TokenType.IF, ParseIf },
+        { TokenType.INTEGER, ParseInteger },
+        { TokenType.LPAREN, ParseGroupedExpression },
+        { TokenType.MINUS, ParsePrefixExpression },
+        { TokenType.NEGATION, ParsePrefixExpression },
+        { TokenType.TRUE, ParseBoolean },
+    };
+        }
 
-
-
-
-
-
-
-
-        // Resto de los métodos de análisis sintáctico...
     }
 }
