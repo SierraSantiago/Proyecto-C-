@@ -13,7 +13,7 @@ namespace cod
             {
                 Console.Write("> ");
                 string input = Console.ReadLine();
-
+        
                 if (input == "exit")
                 {
                     Console.WriteLine("¡Hasta luego!");
