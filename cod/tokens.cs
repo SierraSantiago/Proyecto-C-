@@ -61,7 +61,7 @@ namespace cod
         { "devuelve", TokenType.RETURN },
         { "si", TokenType.IF },
         { "tonces", TokenType.ELSE },
-        { "incognita", TokenType.LET },
+        { "variable", TokenType.LET },
         { "verdad", TokenType.TRUE },
         { "mientras", TokenType.WHILE },
         { "haz", TokenType.DO },

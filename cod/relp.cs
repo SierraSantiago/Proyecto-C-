@@ -3,7 +3,7 @@ using System;
 
 namespace cod
 {
-    class relp
+    class Relp
     {
         public void relp_start()
         {
@@ -24,6 +24,7 @@ namespace cod
                 Lexer lexer = new Lexer(input);
                 Parser parser = new Parser(lexer);
                 Evaluator eva = new Evaluator();
+                Environment env = new Environment();
                 var programa = parser.ParseProgram();
                 Console.WriteLine(programa);
                 
@@ -31,8 +32,8 @@ namespace cod
                 
 
                 
-               /*  
-                Object evaluated = eva.Evaluate(programa);
+                 
+                Object evaluated = eva.Evaluate(programa, env);
                 Console.WriteLine(input+":input");
                 
                 
@@ -43,7 +44,7 @@ namespace cod
                 {
                     Console.WriteLine(evaluated.Inspect());
                 }
-                 */
+                 
 
             }
         }

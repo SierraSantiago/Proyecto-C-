@@ -83,6 +83,7 @@ namespace cod
 
             while (CurrentChar() != '\0')
             {
+                
                 if (char.IsWhiteSpace(CurrentChar()))
                 {
                     SkipWhitespace();

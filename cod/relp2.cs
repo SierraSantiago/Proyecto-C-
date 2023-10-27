@@ -11,18 +11,20 @@ namespace cod
 
             while (true)
             {
-                List<string> scanned = new List<string>();
+                
 
                 while (true)
                 {
                     Console.Write(">> ");
                     string source = Console.ReadLine();
-                    scanned.Add(source);
-                    Lexer lexer = new Lexer(string.Join(" ", scanned));
+                    
+                    Lexer lexer = new Lexer(source);
                     Parser parser = new Parser(lexer);
                     Program program = parser.ParseProgram();
                     Environment env = new Environment();
                     Evaluator evaluator = new Evaluator();
+
+                    Console.WriteLine(program);
 
                     if (parser.Errors.Count > 0)
                     {
@@ -37,7 +39,7 @@ namespace cod
                         Console.WriteLine(evaluated.Inspect());
                     }
 
-                    if (source == "salir()")
+                    if (source == "exit")
                     {
                         break;
                     }

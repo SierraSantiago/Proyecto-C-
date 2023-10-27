@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace cod
@@ -52,34 +53,32 @@ namespace cod
 
             NextToken();
             NextToken();
-            
+
         }
-        
+
 
         public List<string> Errors => errors;
 
         public Program ParseProgram()
         {
-
             Program program = new Program(new List<Statement>());
 
-            if (currentToken != null)
-            {
-                while (currentToken.Type != TokenType.END)
-                {
-                    var statement = ParseStatement();
-                    if (statement != null)
-                    {
-                        program.Statements.Add(statement);
-                        
-                    }
+            Debug.Assert(currentToken != null);
 
-                    NextToken();
+            while (currentToken.Type != TokenType.END)
+            {
+                Statement statement = ParseStatement();
+                if (statement != null)
+                {
+                    program.Statements.Add(statement);
                 }
+
+                NextToken();
             }
 
             return program;
         }
+
 
         private void NextToken()
         {
@@ -211,61 +210,56 @@ namespace cod
         }
         private Expression ParseExpression(Precedence precedence)
         {
-            if (currentToken != null)
+            Debug.Assert(currentToken != null);
+
+            try
             {
-                try
-                {
-                    Func<Expression> prefixParseFn = prefixParseFns[currentToken.Type];
-                    Expression leftExpression = prefixParseFn();
+                Func<Expression> prefixParseFn = prefixParseFns[currentToken.Type];
+                Expression leftExpression = prefixParseFn();
 
-                    while (peekToken != null && peekToken.Type != TokenType.SEMICOLON &&
-                           precedence < PeekPrecedence())
+                Debug.Assert(peekToken != null);
+                while (peekToken.Type != TokenType.SEMICOLON && precedence < PeekPrecedence())
+                {
+                    try
                     {
-                        try
-                        {
-                            Func<Expression, Expression> infixParseFn = infixParseFns[peekToken.Type];
-                            NextToken(); // Avanza al siguiente token.
+                        Func<Expression, Expression> infixParseFn = infixParseFns[peekToken.Type];
+                        NextToken();
 
-                            if (leftExpression != null)
-                            {
-                                leftExpression = infixParseFn(leftExpression);
-                            }
-                        }
-                        catch (KeyNotFoundException)
-                        {
-                            return leftExpression;
-                        }
+                        Debug.Assert(leftExpression != null);
+                        leftExpression = infixParseFn(leftExpression);
                     }
+                    catch (KeyNotFoundException)
+                    {
+                        return leftExpression;
+                    }
+                }
 
-                    return leftExpression;
-                }
-                catch (KeyNotFoundException)
-                {
-                    string message = $"No se encontró ninguna función para analizar {currentToken.Value}";
-                    errors.Add(message);
-                    return null;
-                }
+                return leftExpression;
             }
-            return null;
+            catch (KeyNotFoundException)
+            {
+                string message = $"No se encontró ninguna función para analizar {currentToken.Value}";
+                errors.Add(message);
+                return null;
+            }
         }
+
         private ExpressionStatement ParseExpressionStatement()
         {
-            if (currentToken != null)
+            Debug.Assert(currentToken != null);
+            ExpressionStatement expressionStatement = new ExpressionStatement(currentToken);
+
+            expressionStatement.Expression = ParseExpression(Precedence.LOWEST);
+
+            Debug.Assert(peekToken != null);
+            if (peekToken.Type == TokenType.SEMICOLON)
             {
-                ExpressionStatement expressionStatement = new ExpressionStatement(currentToken);
-
-                expressionStatement.Expression = ParseExpression(Precedence.LOWEST);
-
-                if (peekToken != null && peekToken.Type == TokenType.SEMICOLON)
-                {
-                    NextToken();
-                }
-
-                return expressionStatement;
+                NextToken();
             }
 
-            return null;
+            return expressionStatement;
         }
+
         private Expression ParseGroupedExpression()
         {
             NextToken();
@@ -327,7 +321,7 @@ namespace cod
             {
                 NextToken();
                 NextToken();
-                
+
 
                 if (currentToken != null)
                 {
@@ -405,7 +399,7 @@ namespace cod
                 NextToken();
 
                 Expression right = ParseExpression(precedence);
-                
+
                 return new Infix(token, left, op, right);
             }
             return null;
@@ -457,7 +451,7 @@ namespace cod
 
                 letStatement.Value = ParseExpression(Precedence.LOWEST);
 
-                if (currentToken != null && currentToken.Type == TokenType.SEMICOLON)
+                if (peekToken != null && peekToken.Type == TokenType.SEMICOLON)
                 {
                     NextToken();
                 }

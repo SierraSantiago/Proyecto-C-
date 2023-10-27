@@ -222,8 +222,12 @@ namespace cod
                 Call call = (Call)node;
                 Debug.Assert(call.Function != null);    
                 Object fn = Evaluate(call.Function, env);
+
+                Debug.Assert(call.Arguments != null);
+                List<Object> args = EvaluateExpressions(call.Arguments, env);
+
                 Debug.Assert(fn != null);
-                return ApplyFunction(fn, EvaluateExpressions(call.Arguments, env)); 
+                return ApplyFunction(fn, args); 
 
             }
             else if (nodeType == typeof(StringLiteral))
@@ -337,25 +341,24 @@ namespace cod
             return NULL;
         }
 
-        public object ApplyFunction(Object fn, List<Object> args)
+        public Object ApplyFunction(Object fn, List<Object> args)
         {
-            if (fn.Type == ObjectType.FUNCTION)
+            if (fn.Type != ObjectType.FUNCTION)
             {
+                return NewError(NOT_A_FUNCTION, new List<object> { fn.Type.ToString() });
+            }
+            else{
                 Fnction function = (Fnction)fn;
-                Environment extendedEnv = ExtendFunctionEnv(function, args);
+                Environment extendedEnv = ExtendFunctionEnvironment(function, args);
                 Object evaluated = Evaluate(function.Body, extendedEnv);
                 Debug.Assert(evaluated != null);
                 return UnwrapReturnValue(evaluated);
             }
-            else
-            {
-                return NewError(NOT_A_FUNCTION, new List<object> { fn.Type.ToString() });
-            }
         }
 
-        public Environment ExtendFunctionEnvironment(Function fn, List<Object> args)
+        public Environment ExtendFunctionEnvironment(Fnction fn, List<Object> args)
         {
-            Environment env = new Environment(outer: fn.);
+            Environment env = new Environment(outer: fn.Env);
 
             for (int idx = 0; idx < fn.Parameters.Count; idx++)
             {

@@ -138,7 +138,7 @@ namespace cod
 
         public override string ToString()
         {
-            return Expression.ToString();
+            return Expression?.ToString();
         }
     }
     public class Integer : Expression
