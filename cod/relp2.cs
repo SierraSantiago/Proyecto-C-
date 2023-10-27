@@ -11,40 +11,47 @@ namespace cod
 
             while (true)
             {
-                Console.Write("> ");
-                string input = Console.ReadLine();
-        
-                if (input == "exit")
+                List<string> scanned = new List<string>();
+
+                while (true)
                 {
-                    Console.WriteLine("¡Hasta luego!");
-                    break;  // Sale del bucle si se ingresa "exit"
+                    Console.Write(">> ");
+                    string source = Console.ReadLine();
+                    scanned.Add(source);
+                    Lexer lexer = new Lexer(string.Join(" ", scanned));
+                    Parser parser = new Parser(lexer);
+                    Program program = parser.ParseProgram();
+                    Environment env = new Environment();
+                    Evaluator evaluator = new Evaluator();
+
+                    if (parser.Errors.Count > 0)
+                    {
+                        PrintParseErrors(parser.Errors);
+                        continue;
+                    }
+
+                    Object evaluated = evaluator.Evaluate(program, env);
+
+                    if (evaluated != null)
+                    {
+                        Console.WriteLine(evaluated.Inspect());
+                    }
+
+                    if (source == "salir()")
+                    {
+                        break;
+                    }
                 }
-
-                Lexer lexer = new Lexer(input);
-                Parser parser = new Parser(lexer);
-                Evaluator eva = new Evaluator();
-                var programa = parser.ParseProgram();
-                Console.WriteLine(programa);
-                
-                
-                
-
-                
-                
-                Object evaluated = eva.Evaluate(programa);
-                Console.WriteLine(input+":input");
-                
-                
-                
-               
-
-                 if (evaluated != null)
-                {
-                    Console.WriteLine(evaluated.Inspect());
-                }
-                
-
             }
         }
+        public void PrintParseErrors(List<string> errors)
+        {
+            foreach (string error in errors)
+            {
+                Console.WriteLine(error);
+            }
+        }
+
+
     }
 }

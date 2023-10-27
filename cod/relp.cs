@@ -1,8 +1,9 @@
+
 using System;
 
 namespace cod
 {
-    class Relp
+    class relp
     {
         public void relp_start()
         {
@@ -13,7 +14,7 @@ namespace cod
             {
                 Console.Write("> ");
                 string input = Console.ReadLine();
-
+        
                 if (input == "exit")
                 {
                     Console.WriteLine("¡Hasta luego!");
@@ -21,42 +22,29 @@ namespace cod
                 }
 
                 Lexer lexer = new Lexer(input);
-               /* Parser parser = new Parser(lexer);
-                Program programa = parser.ParseProgram();
+                Parser parser = new Parser(lexer);
+                Evaluator eva = new Evaluator();
+                var programa = parser.ParseProgram();
+                Console.WriteLine(programa);
                 
-                if (parser.Errors.Count > 0)
+                
+                
+
+                
+               /*  
+                Object evaluated = eva.Evaluate(programa);
+                Console.WriteLine(input+":input");
+                
+                
+                
+               
+
+                 if (evaluated != null)
                 {
-                    PrintParseErrors(parser.Errors);
-                    continue;
+                    Console.WriteLine(evaluated.Inspect());
                 }
-                */
+                 */
 
-
-                Token token = lexer.GetNextToken();
-
-                foreach (string str in token.SplitString(input))
-                {
-                    if (token.LookupTokenType(str) != TokenType.IDENT)
-                    {
-                        Console.WriteLine("Token(" + token.LookupTokenType(str) + "," + str + ")");
-                    }
-                    else
-                    {
-                        do
-                        {
-                            Console.WriteLine(token);
-                            token = lexer.GetNextToken();
-                        } while (token.Type != TokenType.END);
-                    }
-                }
-            }
-        }
-        private void PrintParseErrors(List<string> errors)
-        {
-            Console.WriteLine("Se encontraron errores de análisis sintáctico:");
-            foreach (var error in errors)
-            {
-                Console.WriteLine(error);
             }
         }
     }
